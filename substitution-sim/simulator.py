@@ -1,11 +1,10 @@
 import random
 from probe_client import probe
-from config import PROBE_TEMPLATES
+from config import PROBE_TEMPLATES, MAX_TOKENS
 
-import concurrent.futures
-
-def generate_probe_stream(model_a, model_b, total_requests, switch_point, temperature=1.0, max_tokens=5, max_workers=8):
-    def _fetch_probe(i):
+def generate_probe_stream(model_a, model_b, total_requests, switch_point, temperature=1.0, max_tokens=MAX_TOKENS):
+    results = []
+    for i in range(total_requests):
         current_model = model_a
         if switch_point is not None and i >= switch_point:
             current_model = model_b
@@ -13,20 +12,17 @@ def generate_probe_stream(model_a, model_b, total_requests, switch_point, temper
         prompt = random.choice(PROBE_TEMPLATES)
         answer = probe(current_model, prompt, temperature=temperature, max_tokens=max_tokens)
 
-        return {
+        results.append({
             "index": i,
             "prompt": prompt,
             "answer": answer,
             "true_model": current_model,
             "failed": answer is None,
-        }
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        results = list(executor.map(_fetch_probe, range(total_requests)))
+        })
 
     return results
 
-def generate_contaminated_stream(model_a, model_b, total_requests, warmup, contamination_fraction, temperature=1.0, max_tokens=5):
+def generate_contaminated_stream(model_a, model_b, total_requests, warmup, contamination_fraction, temperature=1.0, max_tokens=MAX_TOKENS):
     """
     contamination_fraction: fraction of the warmup period already served by model_b
     (simulating substitution that happened before monitoring started).

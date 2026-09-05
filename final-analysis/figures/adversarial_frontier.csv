@@ -1,0 +1,61 @@
+tier,strategy,provider_saving,detector,mean_delay,power,honest_false_alarm,excess_power,trials
+easy,honest,0.0,e-process,,0.0,0.0,0.0,30
+easy,honest,0.0,mixture-alternative,,0.0,0.0,0.0,30
+easy,honest,0.0,adaptive CUSUM,405.5,0.2,0.2,0.0,30
+easy,full swap,0.833,e-process,29.166666666666668,1.0,0.0,1.0,30
+easy,full swap,0.833,mixture-alternative,126.1,1.0,0.0,1.0,30
+easy,full swap,0.833,adaptive CUSUM,12.214285714285714,0.9333333333333333,0.2,0.733,30
+easy,route 75%,0.625,e-process,109.0,0.9666666666666667,0.0,0.967,30
+easy,route 75%,0.625,mixture-alternative,281.3666666666667,1.0,0.0,1.0,30
+easy,route 75%,0.625,adaptive CUSUM,78.91666666666667,0.8,0.2,0.6,30
+easy,route 50%,0.417,e-process,,0.0,0.0,0.0,30
+easy,route 50%,0.417,mixture-alternative,664.5555555555555,0.3,0.0,0.3,30
+easy,route 50%,0.417,adaptive CUSUM,226.0,0.6,0.2,0.4,30
+easy,route 25%,0.208,e-process,,0.0,0.0,0.0,30
+easy,route 25%,0.208,mixture-alternative,551.0,0.03333333333333333,0.0,0.033,30
+easy,route 25%,0.208,adaptive CUSUM,449.44444444444446,0.3,0.2,0.1,30
+easy,route 10%,0.083,e-process,,0.0,0.0,0.0,30
+easy,route 10%,0.083,mixture-alternative,,0.0,0.0,0.0,30
+easy,route 10%,0.083,adaptive CUSUM,411.3333333333333,0.2,0.2,0.0,30
+easy,route 5%,0.042,e-process,,0.0,0.0,0.0,30
+easy,route 5%,0.042,mixture-alternative,,0.0,0.0,0.0,30
+easy,route 5%,0.042,adaptive CUSUM,351.6666666666667,0.3,0.2,0.1,30
+easy,probe-aware cache,0.817,e-process,,0.0,0.0,0.0,30
+easy,probe-aware cache,0.817,mixture-alternative,,0.0,0.0,0.0,30
+easy,probe-aware cache,0.817,adaptive CUSUM,441.8888888888889,0.3,0.2,0.1,30
+easy,probe-cache 50% miss,0.817,e-process,,0.0,0.0,0.0,30
+easy,probe-cache 50% miss,0.817,mixture-alternative,664.5555555555555,0.3,0.0,0.3,30
+easy,probe-cache 50% miss,0.817,adaptive CUSUM,328.625,0.5333333333333333,0.2,0.333,30
+easy,distribution-matched,0.708,e-process,,0.0,0.0,0.0,30
+easy,distribution-matched,0.708,mixture-alternative,,0.0,0.0,0.0,30
+easy,distribution-matched,0.708,adaptive CUSUM,405.5,0.2,0.2,0.0,30
+medium,honest,0.0,e-process,,0.0,0.0,0.0,30
+medium,honest,0.0,mixture-alternative,,0.0,0.0,0.0,30
+medium,honest,0.0,adaptive CUSUM,614.6666666666666,0.1,0.1,0.0,30
+medium,full swap,0.833,e-process,35.56666666666667,1.0,0.0,1.0,30
+medium,full swap,0.833,mixture-alternative,186.63333333333333,1.0,0.0,1.0,30
+medium,full swap,0.833,adaptive CUSUM,266.9166666666667,0.4,0.1,0.3,30
+medium,route 75%,0.625,e-process,85.07407407407408,0.9,0.0,0.9,30
+medium,route 75%,0.625,mixture-alternative,424.82758620689657,0.9666666666666667,0.0,0.967,30
+medium,route 75%,0.625,adaptive CUSUM,198.375,0.26666666666666666,0.1,0.167,30
+medium,route 50%,0.417,e-process,49.0,0.03333333333333333,0.0,0.033,30
+medium,route 50%,0.417,mixture-alternative,635.3333333333334,0.1,0.0,0.1,30
+medium,route 50%,0.417,adaptive CUSUM,270.5,0.26666666666666666,0.1,0.167,30
+medium,route 25%,0.208,e-process,,0.0,0.0,0.0,30
+medium,route 25%,0.208,mixture-alternative,,0.0,0.0,0.0,30
+medium,route 25%,0.208,adaptive CUSUM,350.2857142857143,0.23333333333333334,0.1,0.133,30
+medium,route 10%,0.083,e-process,,0.0,0.0,0.0,30
+medium,route 10%,0.083,mixture-alternative,,0.0,0.0,0.0,30
+medium,route 10%,0.083,adaptive CUSUM,442.77777777777777,0.3,0.1,0.2,30
+medium,route 5%,0.042,e-process,,0.0,0.0,0.0,30
+medium,route 5%,0.042,mixture-alternative,,0.0,0.0,0.0,30
+medium,route 5%,0.042,adaptive CUSUM,476.0,0.3,0.1,0.2,30
+medium,probe-aware cache,0.817,e-process,,0.0,0.0,0.0,30
+medium,probe-aware cache,0.817,mixture-alternative,,0.0,0.0,0.0,30
+medium,probe-aware cache,0.817,adaptive CUSUM,475.4,0.3333333333333333,0.1,0.233,30
+medium,probe-cache 50% miss,0.817,e-process,,0.0,0.0,0.0,30
+medium,probe-cache 50% miss,0.817,mixture-alternative,775.0,0.03333333333333333,0.0,0.033,30
+medium,probe-cache 50% miss,0.817,adaptive CUSUM,508.6363636363636,0.36666666666666664,0.1,0.267,30
+medium,distribution-matched,0.708,e-process,,0.0,0.0,0.0,30
+medium,distribution-matched,0.708,mixture-alternative,,0.0,0.0,0.0,30
+medium,distribution-matched,0.708,adaptive CUSUM,614.6666666666666,0.1,0.1,0.0,30

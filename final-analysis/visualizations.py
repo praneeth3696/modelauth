@@ -11,7 +11,7 @@ if SIM_DIR not in sys.path:
 from data_loader import load_numeric_stream
 from detector_v1 import sliding_window_detector
 from detector_cusum import adaptive_cusum_detector
-from detector_das_cusum import das_cusum_detector
+from detector_variance_cusum import variance_cusum_detector
 from evaluate import compute_metrics
 
 from detector_fixed_reference import fixed_reference_detector, build_reference_distribution
@@ -184,7 +184,7 @@ def build_summary_table(difficulties=["easy", "medium", "hard"]):
         methods = [
             ("v1 naive", sliding_window_detector, {"window_size": 20}),
             ("adaptive CUSUM", adaptive_cusum_detector, {"warmup": 40, "k": 0.5, "h": 5.0}),
-            ("DAS-CUSUM", das_cusum_detector, {"warmup": 40, "k": 0.5, "h": 5.0}),
+            ("variance CUSUM", variance_cusum_detector, {"warmup": 40, "k": 0.5, "h": 5.0}),
         ]
 
         if reference_dist is not None:

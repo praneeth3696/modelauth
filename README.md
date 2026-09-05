@@ -1,168 +1,135 @@
-# 🛡️ ModelAuth: Self-Baselining LLM Substitution Detection
+# ModelAuth
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Framework: Ollama](https://img.shields.io/badge/LLM_Server-Ollama-orange.svg)](https://ollama.com)
-[![Architecture: Enterprise](https://img.shields.io/badge/Architecture-Enterprise_Modular-purple.svg)](#)
-[![Status: Production Ready](https://img.shields.io/badge/Status-Production_Ready-green.svg)](#)
+Detecting silent model substitution in black-box LLM APIs, without a trusted
+reference model.
 
-**ModelAuth** is an enterprise-grade, non-intrusive statistical change-point detection system designed to identify silent LLM downgrades or model substitutions by third-party API providers (e.g., secretly replacing `llama3.2:3b` with `qwen2.5:3b` or a smaller quantized variant).
+You pay for a large model; the provider quietly serves a smaller one. The API
+returns only text, so weights and logits are unavailable and API keys
+authenticate the server, not the model. ModelAuth sends cheap probes alongside
+normal traffic and watches the answer distribution for the moment it stops
+matching what the endpoint used to look like.
 
-Because external API providers obscure model weights, log-probabilities, and internal layer activations behind HTTP endpoints, traditional software authentication and model verification techniques fail. **ModelAuth** operates in a **self-baselining, zero-shot setting** by issuing single-token random integer probes to the endpoint and monitoring statistical shifts in output distributions.
+**What is actually new here is the adversary.** Self-baselined sequential
+monitoring already exists ([Leshin et al. 2026](https://arxiv.org/abs/2603.19022)),
+and so does single-token fingerprinting ([Bruckner 2026](https://arxiv.org/abs/2607.10252)).
+This repository reproduces those as baselines and measures what happens when the
+provider fights back: partial routing, probe-aware caching, distribution
+matching, and the cost saving each one buys.
 
----
+See **[PAPER.md](PAPER.md)** for the argument and **[RESULTS.md](RESULTS.md)**
+for every table with the command that produces it.
 
-## 🏛️ Enterprise System Architecture & Repository Structure
+## Headline findings
 
-The repository adheres to a clean, modular corporate hierarchy separating source packages, technical documentation, raw specifications, and visual analytics:
+- **Quantization substitution is close to invisible on the numeric probe
+  channel.** q4_K_M vs q8_0 gives KL = 0.152 nats/probe and a single-probe Bayes
+  error of 0.407. Even an oracle handed both distributions reaches 21.4% power.
+- **Below 25% routing, no detector beats its own noise floor.** A provider
+  cheating on a fifth of traffic is safe here.
+- **Published probes are trivially filterable.** A one-line keyword match catches
+  78.3% of the probe bank while misrouting 2.5% of organic traffic. The three
+  templates this project started with are the most detectable probes in it.
+- **The anytime-valid guarantee holds in practice.** Swept from α=1e-1 to 1e-6
+  across three tiers, the e-process fires on 0 of 15 clean streams every time.
+- **Identification never picks the wrong model family** — 42/42 streams — though
+  it cannot separate quantizations of the same weights.
 
-```
-modelauth/
-├── README.md                          # Repository landing page & executive guide
-├── FINNNNNNAAAAALreport.md            # MASTER REPORT: Comprehensive end-to-end guide & findings
-├── .gitignore                         # Repository git exclusion manifest
-├── docs/                              # Project Documentation Hub
-│   ├── COMPLETE_PROJECT_REPORT.md     # Technical reference manual & mathematical specs
-│   ├── TEAM_REFERENCE_PROGRESS_REPORT.md # Team working reference & implementation logs
-│   ├── EXPERIMENT_EVALUATION_GUIDE.md # JSONL schema & evaluation metric guide
-│   └── source_docs/                   # Raw specification files (.docx)
-│       ├── Final Steps.docx
-│       └── gaps.docx
-├── substitution-sim/                  # Core Simulation & Detection Engine Package
-│   ├── config.py                      # Global experiment hyperparameters & model pairs
-│   ├── probe_client.py                # Ollama REST API client
-│   ├── simulator.py                   # Stream generator & switch point simulator
-│   ├── run_experiments.py             # Resumable experiment suite runner
-│   ├── run_cold_start_experiment.py   # Cold-start contamination stream generator
-│   ├── data_loader.py                 # Regex numeric answer parser & stream loader
-│   ├── detector_v1.py                 # Sliding-window 2-sample KS test detector
-│   ├── detector_cusum.py              # Adaptive CUSUM detector
-│   ├── detector_das_cusum.py          # DAS-CUSUM variance-sensitive detector
-│   ├── detector_fixed_reference.py    # Static reference baseline detector
-│   └── evaluate.py                    # Multi-tier evaluation & benchmark suite
-└── final-analysis/                    # Analytics & Visual Reporting Package
-    ├── sanity_checks.py               # Data completeness & model separability audit
-    ├── visualizations.py              # Matplotlib trace, ROC, & contamination plots
-    ├── interactive_dashboard.py       # HTML / Chart.js dashboard generator
-    ├── run_final_steps.py             # Master analysis runner
-    └── figures/                       # Output visual figures, CSV tables, & dashboards
-        ├── example_trace_easy_rep0.png
-        ├── roc_comparison_easy.png
-        ├── cold_start_boundary.png
-        ├── summary_table.csv
-        ├── summary_table_all_tiers.csv
-        └── dashboard.html
-```
-
----
-
-## 🚀 Quickstart Guide
-
-### 1. Prerequisites & Model Setup
-
-### 1. Prerequisites & Model Setup
-
-Install [Ollama](https://ollama.com) and pull the benchmark model pairs across difficulty tiers:
+## Install
 
 ```bash
-# Easy Tier: Cross-Architecture (LLaMA-3B vs Qwen-3B)
-ollama pull llama3.2:3b
-ollama pull qwen2.5:3b
-
-# Medium Tier: Capacity / Parameter Scale Shift (LLaMA-1B vs LLaMA-3B)
-ollama pull llama3.2:1b
-
-# Hard Tier: Quantization Precision Shift (LLaMA-3B-Instruct 4-bit vs 8-bit)
-ollama pull llama3.2:3b-instruct-q4_K_M
-ollama pull llama3.2:3b-instruct-q8_0
+cd substitution-sim
+python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### 2. Environment Setup
+## Run
 
-Clone the repository and initialize the Python environment:
+Everything below works on the logged data already in this repository. **No
+Ollama required.**
 
 ```bash
-git clone https://github.com/praneeth3696/modelauth.git
-cd modelauth/substitution-sim
-pip install numpy scipy matplotlib openai
+cd substitution-sim
+python audit_data.py               # parse completeness + per-tier separability
+python evaluate.py                 # main 3-tier benchmark
+python calibration.py              # nominal vs achieved false-alarm rate
+python matched_operating_point.py  # every detector at a matched FA budget
+python run_adversarial.py --tier easy --trials 30
+python detector_lineup.py          # which model is being served?
+python camouflage.py               # can a provider spot your probes?
+python probe_bank.py               # candidate probe inventory
 ```
 
-### 3. Run Experiments & Evaluations
+### Needs Ollama
 
 ```bash
-# Generate simulation probe streams (easy, medium, or hard)
-python run_experiments.py easy
-python run_experiments.py medium
-python run_experiments.py hard
-
-# Evaluate all 4 detectors across all tiers
-python evaluate.py
+ollama serve
+python run_experiments.py --check          # verify models before generating
+python run_experiments.py medium hard      # regenerate streams
+python run_probe_survey.py --check         # ~25k generations, resumable
+python run_probe_survey.py
+python probe_selection.py                  # needs the survey above
+python run_adversarial.py --online         # live routing, not resampling
 ```
 
-### 4. Run Analysis & Launch Dashboard
+## Layout
 
-```bash
-cd ../final-analysis
-python run_final_steps.py
-python interactive_dashboard.py
+```
+substitution-sim/
+  config.py                    tiers, probe templates, generation budget
+  probe_client.py              Ollama REST client
+  simulator.py                 stream generator
+  run_experiments.py           resumable generation, preflights models
+  data_loader.py               parsing with an explicit reject taxonomy
+  stats_categorical.py         PMF, KL, TV, Bayes error, Lorden reference
+
+  detector_v1.py               sliding-window KS
+  detector_cusum.py            adaptive CUSUM on the mean
+  detector_variance_cusum.py   chi-square style variance CUSUM
+  detector_fixed_reference.py  held-out reference comparison
+  detector_compression.py      prequential MDL e-process (+ mixture alternative)
+  detector_baselines_2026.py   energy distance [Leshin], JS fingerprint [Bruckner]
+  detector_oracle.py           LR-CUSUM given both PMFs -- upper bound
+  detector_lineup.py           posterior over candidate models
+
+  adversary.py                 provider strategies
+  run_adversarial.py           the detectability frontier
+  probe_bank.py                83 candidate probes across 5 families
+  run_probe_survey.py          sample the bank (needs Ollama)
+  probe_selection.py           information-per-token ranking + portfolio
+  camouflage.py                probe-vs-organic detectability
+
+  evaluate.py                  main benchmark
+  calibration.py               anytime-validity check
+  matched_operating_point.py   matched false-alarm comparison
+  audit_data.py                data completeness + separability
+
+final-analysis/                figures, dashboards, CSV outputs
+docs/archive/                  superseded reports, kept for provenance
 ```
 
-Open `final-analysis/figures/dashboard.html` in any browser to inspect interactive charts!
+## Two constructions that look right and are not
 
----
+Both are documented in `detector_compression.py` because both cost real time.
 
-## 📊 Complete Empirical Performance Summary (All 3 Tiers)
+**Excess surprisal.** `-log p(x) - H(p)` is mean-zero under the null but
+`E[exp(·)] = K·exp(-H) >> 1`, so Ville's inequality does not apply.
 
-Evaluated across independent test repetitions on **Easy** (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`), **Medium** (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`), and **Hard** (`llama3.2:3b-instruct-q4_K_M` $\rightarrow$ `llama3.2:3b-instruct-q8_0`) tiers at true substitution switch point $t = 200$:
+**Frozen null vs adaptive alternative.** `E[q/p_0] = 1` requires `p_0` to be the
+true null law, not a warmup estimate of it. The adaptive code compresses better
+purely from having seen more data: **+92.9 nats of drift on a clean stream and a
+100% false-alarm rate at every α**. Making both codes prequential fixes it.
 
-| Difficulty Tier | Model Pair ($A \rightarrow B$) | Nature of Substitution | Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
-| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`v1 naive`** *(Sliding Window KS)* | **+14.50 probes** | **14.29%** | **0.16%** | Power drops on subtle intra-family shift |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`adaptive CUSUM`** | **+41.15 probes** | **92.86%** | **0.08%** | **Top Self-Baselined Power (92.86%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`DAS-CUSUM`** | **+83.55 probes** | **78.57%** | **0.00%** | **Zero False Alarms (0.00%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`fixed-reference`** *(Held-Out)* | **+22.86 probes** | **100.00%** | **0.75%** | **100% Detection Power** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`v1 naive`** *(Sliding Window KS)* | **+126.00 probes** | **28.57%** | **0.00%** | High Delay on precision drift |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`adaptive CUSUM`** | **+71.20 probes** | **71.43%** | **0.58%** | **Top Quantization Power (71.43%)** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`DAS-CUSUM`** | **+88.75 probes** | **57.14%** | **0.54%** | Variance-Sensitive Drift Tracking |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`fixed-reference`** *(Held-Out)* | **+90.00 probes** | **14.29%** | **0.36%** | Requires larger batch integration |
+## Caveats
 
----
+- The adversarial frontier is measured offline by resampling logged responses,
+  which destroys within-session run structure. Read the shape, not the intercept,
+  until `--online` has been run.
+- 15 streams per tier puts the smallest resolvable false-alarm rate at 1/15.
+- The 2026 comparators are reconstructions from published descriptions, adapted
+  to a single-token integer channel — not the authors' code.
+- `camouflage.py` ships a 40-line stand-in organic corpus. Point `--organic` at a
+  real prompt log before quoting its numbers.
 
-## 📊 Visualizations
+## License
 
-| Easy Tier Trace | Medium Tier Trace | Hard Tier Trace |
-| :---: | :---: | :---: |
-| ![Example Trace Easy](final-analysis/figures/example_trace_easy_rep0.png) | ![Example Trace Medium](final-analysis/figures/example_trace_medium_rep0.png) | ![Example Trace Hard](final-analysis/figures/example_trace_hard_rep0.png) |
-
-| Easy Tier ROC Curve | Medium Tier ROC Curve | Hard Tier ROC Curve |
-| :---: | :---: | :---: |
-| ![ROC Curve Easy](final-analysis/figures/roc_comparison_easy.png) | ![ROC Curve Medium](final-analysis/figures/roc_comparison_medium.png) | ![ROC Curve Hard](final-analysis/figures/roc_comparison_hard.png) |
-
-| Complete Multi-Tier Benchmark Comparison (Power & Delay) |
-| :---: |
-| ![Multi-Tier Benchmark Comparison](final-analysis/figures/multi_tier_benchmark_comparison.png) |
-
-| Empirical Model Output Distribution Separability (All Tiers) | Cold-Start Contamination Boundary |
-| :---: | :---: |
-| ![Distribution Separability](final-analysis/figures/distribution_separability_all_tiers.png) | ![Cold Start Boundary](final-analysis/figures/cold_start_boundary.png) |
-
----
-
-## 📜 Documentation & References
-
-- 📄 [FINNNNNNAAAAALreport.md](FINNNNNNAAAAALreport.md): **MASTER REPORT** (Executive summary, intuition, math, and full benchmarks).
-- 📄 [docs/COMPLETE_PROJECT_REPORT.md](docs/COMPLETE_PROJECT_REPORT.md): In-depth technical reference manual.
-- 📄 [docs/TEAM_REFERENCE_PROGRESS_REPORT.md](docs/TEAM_REFERENCE_PROGRESS_REPORT.md): Team progress reference document.
-- 📄 [docs/EXPERIMENT_EVALUATION_GUIDE.md](docs/EXPERIMENT_EVALUATION_GUIDE.md): Data schema & evaluation metric guide.
-- 📂 [docs/source_docs/](docs/source_docs/): Raw specification documents (`Final Steps.docx`, `gaps.docx`).
-- 🌐 [final-analysis/figures/dashboard.html](final-analysis/figures/dashboard.html): Interactive Chart.js dashboard.
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for details.
+MIT.

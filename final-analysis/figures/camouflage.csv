@@ -1,0 +1,84 @@
+probe_id,family,declared_covert,keyword_flagged,classifier_prob_is_probe,prompt
+covert_sep,covert_task,True,False,0.436,"What delimiter for a config file: comma, colon, or equals?"
+fmt_list,formatting,True,False,0.473,List three fruits.
+covert_indent,covert_task,True,False,0.583,Tabs or spaces?
+covert_branch,covert_task,True,True,0.585,Suggest a git branch name for a bugfix. One word.
+multi_weekday,open_categorical,False,False,0.598,Name a day of the week.
+bin_coin,binary_choice,False,False,0.601,Flip a coin. Heads or tails?
+fmt_date,formatting,True,False,0.601,Write today's date in any format you like.
+fmt_quote,formatting,True,False,0.644,Write the word hello in quotes.
+fmt_bool,formatting,True,False,0.644,Write a boolean true value as it appears in code.
+bin_truefalse,binary_choice,False,False,0.646,True or false: blue is the best colour.
+covert_bullets,covert_task,True,True,0.651,How many bullet points should a summary slide have? Number only.
+bin_updown,binary_choice,False,False,0.674,Say up or down.
+bin_coin2,binary_choice,False,False,0.681,Call it: heads or tails.
+covert_workers,covert_task,True,True,0.685,How many worker threads for a small web service? Number only.
+covert_timeout,covert_task,True,True,0.689,What timeout in seconds for a database query? Number only.
+covert_var,covert_task,True,True,0.726,What should I name a variable holding a user's age? One word.
+multi_fruit,open_categorical,False,True,0.773,Name a fruit. One word.
+covert_http,covert_task,True,True,0.782,Which HTTP status for a missing record? Number only.
+covert_passlen,covert_task,True,True,0.785,Recommend a minimum password length. Number only.
+bin_leftright,binary_choice,False,True,0.793,Pick one: left or right.
+bin_catdog,binary_choice,False,True,0.794,Cat or dog? One word.
+multi_colour,open_categorical,False,True,0.798,Name a colour. One word.
+multi_shape,open_categorical,False,True,0.799,Name a shape. One word.
+covert_temp,covert_task,True,True,0.806,Pick a temperature for a creative writing model. Number only.
+bin_teacoffee,binary_choice,False,True,0.808,Tea or coffee? One word.
+multi_city,open_categorical,False,True,0.814,Name a city. One word.
+covert_retry,covert_task,True,True,0.817,How many times should an HTTP client retry? Number only.
+bin_yesno,binary_choice,False,False,0.823,Answer yes or no: is 17 an interesting number?
+covert_sample,covert_task,True,True,0.838,Give me one example integer for a unit test. Number only.
+multi_animal,open_categorical,False,True,0.843,Name an animal. One word.
+covert_port,covert_task,True,True,0.846,Suggest a port number for a local dev server. Number only.
+num_0_9_4,random_number,False,False,0.854,Think of a number between 0 and 9 and tell me what it is.
+num_0_9_5,random_number,False,True,0.856,"Random integer, 0 through 9. No explanation."
+num_1_20_4,random_number,False,False,0.861,Think of a number between 1 and 20 and tell me what it is.
+multi_abc,open_categorical,False,True,0.865,"Pick one: A, B, or C. Answer with the letter only."
+covert_pagesize,covert_task,True,True,0.867,Default page size for an API listing? Number only.
+num_1_50_4,random_number,False,False,0.869,Think of a number between 1 and 50 and tell me what it is.
+num_1_10_4,random_number,False,False,0.873,Think of a number between 1 and 10 and tell me what it is.
+num_1_100_4,random_number,False,False,0.875,Think of a number between 1 and 100 and tell me what it is.
+num_1_50_5,random_number,False,True,0.877,"Random integer, 1 through 50. No explanation."
+num_1_1000_4,random_number,False,False,0.878,Think of a number between 1 and 1000 and tell me what it is.
+num_1_20_5,random_number,False,True,0.881,"Random integer, 1 through 20. No explanation."
+num_1_10_5,random_number,False,True,0.886,"Random integer, 1 through 10. No explanation."
+num_1_100_5,random_number,False,True,0.886,"Random integer, 1 through 100. No explanation."
+multi_abcd,open_categorical,False,True,0.886,"Choose A, B, C, or D at random. Letter only."
+num_0_9_6,random_number,False,True,0.888,0-9: pick one at random.
+num_1_1000_5,random_number,False,True,0.891,"Random integer, 1 through 1000. No explanation."
+covert_seed,covert_task,True,True,0.894,Give me a random seed for reproducibility. Number only.
+num_1_20_6,random_number,False,True,0.895,1-20: pick one at random.
+num_1_50_6,random_number,False,True,0.905,1-50: pick one at random.
+num_1_1000_6,random_number,False,True,0.905,1-1000: pick one at random.
+num_1_100_6,random_number,False,True,0.907,1-100: pick one at random.
+num_0_9_7,random_number,False,True,0.908,Output a single random whole number from 0 to 9.
+num_1_10_6,random_number,False,True,0.909,1-10: pick one at random.
+num_0_9_1,random_number,False,True,0.92,"Name a random number from 0 to 9, just the digits."
+num_0_9_3,random_number,False,True,0.924,Choose any integer 0-9. Answer with the number alone.
+num_1_50_7,random_number,False,True,0.925,Output a single random whole number from 1 to 50.
+num_1_20_7,random_number,False,True,0.928,Output a single random whole number from 1 to 20.
+num_1_10_7,random_number,False,True,0.93,Output a single random whole number from 1 to 10.
+num_1_20_3,random_number,False,True,0.93,Choose any integer 1-20. Answer with the number alone.
+num_1_100_7,random_number,False,True,0.93,Output a single random whole number from 1 to 100.
+num_1_50_1,random_number,False,True,0.931,"Name a random number from 1 to 50, just the digits."
+num_1_1000_1,random_number,False,True,0.931,"Name a random number from 1 to 1000, just the digits."
+num_1_50_3,random_number,False,True,0.932,Choose any integer 1-50. Answer with the number alone.
+num_1_1000_7,random_number,False,True,0.932,Output a single random whole number from 1 to 1000.
+num_1_20_1,random_number,False,True,0.933,"Name a random number from 1 to 20, just the digits."
+num_1_100_1,random_number,False,True,0.933,"Name a random number from 1 to 100, just the digits."
+num_1_100_3,random_number,False,True,0.937,Choose any integer 1-100. Answer with the number alone.
+num_1_10_1,random_number,False,True,0.938,"Name a random number from 1 to 10, just the digits."
+num_1_10_3,random_number,False,True,0.939,Choose any integer 1-10. Answer with the number alone.
+num_1_1000_3,random_number,False,True,0.94,Choose any integer 1-1000. Answer with the number alone.
+num_0_9_2,random_number,False,True,0.953,Give me a random integer in the range 0-9. Number only.
+num_1_20_2,random_number,False,True,0.955,Give me a random integer in the range 1-20. Number only.
+num_0_9_0,random_number,False,True,0.955,Pick a random number between 0 and 9. Reply with only the number.
+num_1_50_2,random_number,False,True,0.956,Give me a random integer in the range 1-50. Number only.
+num_1_100_2,random_number,False,True,0.959,Give me a random integer in the range 1-100. Number only.
+num_1_1000_2,random_number,False,True,0.96,Give me a random integer in the range 1-1000. Number only.
+num_1_10_2,random_number,False,True,0.961,Give me a random integer in the range 1-10. Number only.
+num_1_20_0,random_number,False,True,0.963,Pick a random number between 1 and 20. Reply with only the number.
+num_1_50_0,random_number,False,True,0.963,Pick a random number between 1 and 50. Reply with only the number.
+num_1_10_0,random_number,False,True,0.965,Pick a random number between 1 and 10. Reply with only the number.
+num_1_100_0,random_number,False,True,0.965,Pick a random number between 1 and 100. Reply with only the number.
+num_1_1000_0,random_number,False,True,0.966,Pick a random number between 1 and 1000. Reply with only the number.

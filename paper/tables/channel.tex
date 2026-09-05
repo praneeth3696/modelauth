@@ -1,0 +1,9 @@
+\begin{tabular}{llccccc}
+\toprule
+Tier & Substitution & Entropy A/B (bits) & $KL(B\|A)$ & TV & Bayes err. \\
+\midrule
+Easy & llama3.2:3b $\rightarrow$ qwen2.5:3b & 4.16 / 4.33 & 2.149 & 0.725 & 0.138 \\
+Medium & llama3.2:1b $\rightarrow$ llama3.2:3b & 5.31 / 4.55 & 1.450 & 0.635 & 0.183 \\
+Hard & q4\_K\_M $\rightarrow$ q8\_0 & 4.15 / 4.59 & 0.152 & 0.186 & 0.407 \\
+\bottomrule
+\end{tabular}

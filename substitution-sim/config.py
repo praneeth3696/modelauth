@@ -11,7 +11,16 @@ PROBE_TEMPLATES = [
 ]
 
 TEMPERATURE = 1.0
-MAX_TOKENS = 5
+
+# Was 5, which truncated responses mid-digits: "854" and "8549" appeared in the
+# easy-tier logs as fragments of longer answers, and the bare \d+ parser accepted
+# them. 76 such values inflated the pooled llama3.2:3b std from 18.25 to 349.09.
+MAX_TOKENS = 8
+
+# Answers outside this range are recorded as out_of_range rather than parsed.
+# The probe asks for 1-100; anything else is a truncation or a refusal preamble.
+VALID_RANGE = (1, 100)
+
 TOTAL_REQUESTS = 400
 SWITCH_POINT = 200
 N_REPETITIONS = 15
