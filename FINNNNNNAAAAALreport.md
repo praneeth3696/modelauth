@@ -131,14 +131,10 @@ Compares incoming batches against a pre-collected, held-out reference dataset ge
 
 ---
 
-## 📊 5. Empirical Results & Complete 3-Tier Performance Benchmark
+## 📊 5. Empirical Results: Medium & Hard Tiers Performance Benchmark
 
 | Difficulty Tier | Model Pair ($A \rightarrow B$) | Nature of Substitution | Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
 | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
 | **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`v1 naive`** *(Sliding Window KS)* | **+14.50 probes** | **14.29%** | **0.16%** | Power collapses on subtle shift |
 | **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`adaptive CUSUM`** | **+41.15 probes** | **92.86%** | **0.08%** | **Top Self-Baselined Power (92.86%)** |
 | **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`DAS-CUSUM`** | **+83.55 probes** | **78.57%** | **0.00%** | **Zero False Alarms (0.00%)** |
@@ -149,11 +145,10 @@ Compares incoming batches against a pre-collected, held-out reference dataset ge
 | **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`fixed-reference`** *(Held-Out)* | **+90.00 probes** | **14.29%** | **0.36%** | Requires larger batch integration |
 
 > [!IMPORTANT]
-> **Key Scientific Insights across Tiers**:
-> 1. **Cross-Architecture Shifts (Easy: LLaMA $\rightarrow$ Qwen)**: High distribution separability (KS = 0.659, $p < 10^{-270}$) allows local sliding-window detectors (`v1 naive`) to detect the switch rapidly (+15.33 probes) with 85.71% power.
-> 2. **Intra-Family Parameter Shifts (Medium: 1B $\rightarrow$ 3B)**: More subtle distribution shift (KS = 0.402, $p < 10^{-96}$). The naive sliding window KS lacks memory and drops to 14.29% power. In contrast, **Adaptive CUSUM** accumulates small persistent standardized drifts, achieving **92.86% detection power** with only **0.08% false alarms**.
-> 3. **Quantization Precision Shifts (Hard: Q4_K_M $\rightarrow$ Q8_0)**: The most challenging regime where model weights share the exact same architecture and parameter counts, varying only by quantization compression. **Adaptive CUSUM** maintains the highest self-baselined power (**71.43%**, +71.2 probes), whereas non-parametric sliding windows suffer severe delays (+126 probes).
-> 4. **Fixed-Reference Upper Bound**: When clean held-out reference distributions are stored, `fixed-reference` achieves **100% detection power** across Easy (+20 probes) and Medium (+22.86 probes) tiers with near-zero false alarms.
+> **Key Scientific Insights for Medium & Hard Tiers**:
+> 1. **Intra-Family Parameter Shifts (Medium: 1B $\rightarrow$ 3B)**: More subtle distribution shift ($KS = 0.402, p < 10^{-96}$). The naive sliding window KS lacks memory and drops to 14.29% power. In contrast, **Adaptive CUSUM** accumulates small persistent standardized drifts, achieving **92.86% detection power** with only **0.08% false alarms**.
+> 2. **Quantization Precision Shifts (Hard: Q4_K_M $\rightarrow$ Q8_0)**: The most challenging regime where model weights share the exact same architecture and parameter counts, varying only by quantization compression. **Adaptive CUSUM** maintains the highest self-baselined power (**71.43%**, +71.2 probes), whereas non-parametric sliding windows suffer severe delays (+126 probes).
+> 3. **Fixed-Reference Upper Bound**: When clean held-out reference distributions are stored, `fixed-reference` achieves **100% detection power** across Medium (+22.86 probes) with near-zero false alarms. On subtle quantization shifts, batch KS testing requires larger sample accumulation.
 
 ---
 
@@ -161,73 +156,61 @@ Compares incoming batches against a pre-collected, held-out reference dataset ge
 
 ### 6.1 Single Stream Response Traces & Switch Points
 
-| Easy Tier (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`) | Medium Tier (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`) | Hard Tier (`llama3.2:3b-q4` $\rightarrow$ `3b-q8`) |
-| :---: | :---: | :---: |
-| ![Example Trace — Easy](final-analysis/figures/example_trace_easy_rep0.png) | ![Example Trace — Medium](final-analysis/figures/example_trace_medium_rep0.png) | ![Example Trace — Hard](final-analysis/figures/example_trace_hard_rep0.png) |
+| Medium Tier (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`) | Hard Tier (`llama3.2:3b-q4` $\rightarrow$ `3b-q8`) |
+| :---: | :---: |
+| ![Example Trace — Medium](final-analysis/figures/example_trace_medium_rep0.png) | ![Example Trace — Hard](final-analysis/figures/example_trace_hard_rep0.png) |
 
-*Figure 1: Numerical response streams across 400 probes for Easy, Medium, and Hard tiers. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
+*Figure 1: Numerical response streams across 400 probes for Medium and Hard tiers. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
 
 ---
 
 ### 6.2 ROC Delay vs. False Alarm Rate Trade-Off Curves
 
-| Easy Tier ROC Curve | Medium Tier ROC Curve | Hard Tier ROC Curve |
-| :---: | :---: | :---: |
-| ![ROC Curve — Easy](final-analysis/figures/roc_comparison_easy.png) | ![ROC Curve — Medium](final-analysis/figures/roc_comparison_medium.png) | ![ROC Curve — Hard](final-analysis/figures/roc_comparison_hard.png) |
+| Medium Tier ROC Curve | Hard Tier ROC Curve |
+| :---: | :---: |
+| ![ROC Curve — Medium](final-analysis/figures/roc_comparison_medium.png) | ![ROC Curve — Hard](final-analysis/figures/roc_comparison_hard.png) |
 
-*Figure 2: Receiver Operating Characteristic (ROC) trade-off curves mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis) across all difficulty tiers.*
-
----
-
-### 6.3 Complete Multi-Tier Benchmark Comparison (Power & Delay)
-
-![Multi-Tier Benchmark Comparison](final-analysis/figures/multi_tier_benchmark_comparison.png)
-
-*Figure 3: Side-by-side grouped bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for Easy, Medium, and Hard difficulty tiers.*
+*Figure 2: Receiver Operating Characteristic (ROC) trade-off curves mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis) for Medium and Hard tiers.*
 
 ---
 
-### 6.4 Model Output Distribution Separability (Architecture vs Scale vs Quantization)
+### 6.3 Medium vs Hard Detector Benchmark Comparison (Power & Delay)
 
-![Distribution Separability All Tiers](final-analysis/figures/distribution_separability_all_tiers.png)
+![Medium vs Hard Benchmark Comparison](final-analysis/figures/benchmark_comparison_medium_hard.png)
 
-*Figure 4: Empirical probability density distributions of single-token probe responses across all 3 tiers. Easy Tier (cross-architecture) shows distinct modal separation ($KS=0.659, p<10^{-270}$), Medium Tier (parameter shift) exhibits moderate density shifts ($KS=0.402, p<10^{-96}$), and Hard Tier (quantization shift) captures subtle precision differences.*
+*Figure 3: Side-by-side grouped bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for Medium and Hard difficulty tiers.*
 
 ---
 
-### 6.5 Cold-Start Baseline Contamination Boundary
+### 6.4 Model Output Distribution Separability (Scale vs Quantization)
 
-![Cold-Start Contamination Power Boundary](final-analysis/figures/cold_start_boundary.png)
+![Distribution Separability Medium and Hard](final-analysis/figures/distribution_separability_medium_hard.png)
 
-*Figure 5: Cold-start contamination boundary showing recovery power as a function of pre-monitoring baseline contamination ($0\%$ to $100\%$).*
+*Figure 4: Empirical probability density distributions of single-token probe responses across Medium (parameter scale shift, $KS=0.402, p<10^{-96}$) and Hard (quantization shift, $KS=0.087, p=8.0\times 10^{-5}$) tiers.*
 
 ---
 
 ## 🌐 7. Interactive Dashboard
 
 An interactive dashboard with Chart.js analytics widgets is available in your browser:
-🔗 [Open Interactive Dashboard HTML](file:///d:/Praneeth/Work/modelauth/final-analysis/figures/dashboard.html)
+🔗 `final-analysis/figures/dashboard.html`
 
 ---
 
 ## 🚀 8. How to Run the System
 
-To re-run the entire pipeline from scratch on Windows 11:
+To re-run the Medium & Hard pipeline:
 
-```powershell
-# 1. Run full simulation experiments across Easy, Medium, or Hard tiers
+```bash
+# 1. Run detector evaluations and statistical audits
 cd substitution-sim
-python run_experiments.py easy
-python run_experiments.py medium
-python run_experiments.py hard
-
-# 2. Run detector evaluations and statistical audits
 python evaluate.py
 
-# 3. Generate all figures, summary tables, and dashboard
+# 2. Generate all figures, summary tables, and dashboard
 cd ../final-analysis
 python run_final_steps.py
 python interactive_dashboard.py
 ```
 
-All summary tables (`summary_table_all_tiers.csv`), figures (`.png`), and interactive dashboards (`dashboard.html`) will update automatically.
+All summary tables (`summary_table.csv`), figures (`.png`), and interactive dashboards (`dashboard.html`) will update automatically.
+

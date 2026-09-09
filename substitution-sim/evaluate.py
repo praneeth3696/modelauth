@@ -51,7 +51,7 @@ def load_all_reps(difficulty, condition, n_reps=14, data_dir=None):
     return streams
 
 if __name__ == "__main__":
-    DIFFICULTIES = ["easy", "medium", "hard"]
+    DIFFICULTIES = ["medium", "hard"]
     results_table = []
 
     for difficulty in DIFFICULTIES:
@@ -83,7 +83,8 @@ if __name__ == "__main__":
             metrics = compute_metrics(fn, sub_streams, null_streams, true_switch=200, **kwargs)
             results_table.append({"difficulty": difficulty, "method": name, **metrics})
 
-    out_csv = "../final-analysis/figures/summary_table_all_tiers.csv"
+    out_csv = "../final-analysis/figures/summary_table.csv"
+
     if results_table:
         os.makedirs(os.path.dirname(out_csv), exist_ok=True)
         with open(out_csv, "w", newline="") as f:

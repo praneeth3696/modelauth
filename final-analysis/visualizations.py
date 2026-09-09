@@ -160,7 +160,7 @@ def plot_contamination_curve(contamination_results=None):
     plt.close()
     return out_path
 
-def build_summary_table(difficulties=["easy", "medium", "hard"]):
+def build_summary_table(difficulties=["medium", "hard"]):
     rows = []
     for difficulty in difficulties:
         sub, null = [], []
@@ -203,13 +203,8 @@ def build_summary_table(difficulties=["easy", "medium", "hard"]):
             })
 
     out_csv = os.path.join(FIG_DIR, "summary_table.csv")
-    out_csv_all = os.path.join(FIG_DIR, "summary_table_all_tiers.csv")
     if rows:
         with open(out_csv, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
-            writer.writeheader()
-            writer.writerows(rows)
-        with open(out_csv_all, "w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=rows[0].keys())
             writer.writeheader()
             writer.writerows(rows)
@@ -217,27 +212,24 @@ def build_summary_table(difficulties=["easy", "medium", "hard"]):
 
 def plot_multi_tier_benchmark(table_rows=None):
     if table_rows is None:
-        table_rows = build_summary_table(["easy", "medium", "hard"])
+        table_rows = build_summary_table(["medium", "hard"])
 
     methods = ["v1 naive", "adaptive CUSUM", "DAS-CUSUM", "fixed-reference"]
-    easy_power = [next((r["detection_rate"] * 100 for r in table_rows if r["difficulty"] == "easy" and r["method"] == m), 0) for m in methods]
     medium_power = [next((r["detection_rate"] * 100 for r in table_rows if r["difficulty"] == "medium" and r["method"] == m), 0) for m in methods]
     hard_power = [next((r["detection_rate"] * 100 for r in table_rows if r["difficulty"] == "hard" and r["method"] == m), 0) for m in methods]
 
-    easy_delay = [next((r["mean_delay"] for r in table_rows if r["difficulty"] == "easy" and r["method"] == m), 0) for m in methods]
     medium_delay = [next((r["mean_delay"] for r in table_rows if r["difficulty"] == "medium" and r["method"] == m), 0) for m in methods]
     hard_delay = [next((r["mean_delay"] for r in table_rows if r["difficulty"] == "hard" and r["method"] == m), 0) for m in methods]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5.5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     x = np.arange(len(methods))
-    width = 0.25
+    width = 0.35
 
     # Subplot 1: Detection Power
-    ax1.bar(x - width, easy_power, width, label='Easy (LLaMA-3B → Qwen-3B)', color='#38bdf8')
-    ax1.bar(x, medium_power, width, label='Medium (LLaMA-1B → LLaMA-3B)', color='#c084fc')
-    ax1.bar(x + width, hard_power, width, label='Hard (LLaMA-3B-Q4 → Q8)', color='#f43f5e')
+    bars_m = ax1.bar(x - width/2, medium_power, width, label='Medium (LLaMA-1B → 3B)', color='#c084fc')
+    bars_h = ax1.bar(x + width/2, hard_power, width, label='Hard (LLaMA-3B-Q4 → Q8)', color='#f43f5e')
     ax1.set_ylabel('Detection Power (%)', fontsize=11)
-    ax1.set_title('Detection Power across Tiers (Higher is Better)', fontsize=12, fontweight='bold')
+    ax1.set_title('Detection Power: Medium vs Hard Tiers', fontsize=12, fontweight='bold')
     ax1.set_xticks(x)
     ax1.set_xticklabels(methods, rotation=15, fontsize=10)
     ax1.set_ylim(0, 115)
@@ -245,43 +237,23 @@ def plot_multi_tier_benchmark(table_rows=None):
     ax1.grid(axis='y', linestyle='--', alpha=0.5)
 
     # Subplot 2: Detection Delay
-    ax2.bar(x - width, easy_delay, width, label='Easy Delay', color='#38bdf8')
-    ax2.bar(x, medium_delay, width, label='Medium Delay', color='#c084fc')
-    ax2.bar(x + width, hard_delay, width, label='Hard Delay', color='#f43f5e')
+    ax2.bar(x - width/2, medium_delay, width, label='Medium Delay', color='#c084fc')
+    ax2.bar(x + width/2, hard_delay, width, label='Hard Delay', color='#f43f5e')
     ax2.set_ylabel('Mean Delay (Probes Post-Switch)', fontsize=11)
-    ax2.set_title('Mean Detection Delay across Tiers (Lower is Better)', fontsize=12, fontweight='bold')
+    ax2.set_title('Mean Detection Delay (Lower is Better)', fontsize=12, fontweight='bold')
     ax2.set_xticks(x)
     ax2.set_xticklabels(methods, rotation=15, fontsize=10)
     ax2.legend(loc='upper right', fontsize=9)
     ax2.grid(axis='y', linestyle='--', alpha=0.5)
 
     plt.tight_layout()
-    out_path = os.path.join(FIG_DIR, "multi_tier_benchmark_comparison.png")
+    out_path = os.path.join(FIG_DIR, "benchmark_comparison_medium_hard.png")
     plt.savefig(out_path, dpi=150)
     plt.close()
     return out_path
 
 def plot_distribution_separability():
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 4.8))
-
-    # Easy Tier Distributions
-    easy_a, easy_b = [], []
-    for i in range(5):
-        nf = os.path.join(SIM_DIR, "data", f"easy_null_rep{i}.jsonl")
-        sf = os.path.join(SIM_DIR, "data", f"easy_substitution_rep{i}.jsonl")
-        if os.path.exists(nf):
-            easy_a.extend([r["numeric_answer"] for r in load_numeric_stream(nf)])
-        if os.path.exists(sf):
-            easy_b.extend([r["numeric_answer"] for r in load_numeric_stream(sf) if r["index"] >= 200])
-
-    if easy_a and easy_b:
-        ax1.hist(easy_a, bins=25, alpha=0.6, label='Model A (llama3.2:3b)', color='royalblue', density=True)
-        ax1.hist(easy_b, bins=25, alpha=0.6, label='Model B (qwen2.5:3b)', color='darkorange', density=True)
-        ax1.set_title('Easy Tier (KS=0.659, p<1e-270)\nArchitecture Shift', fontsize=11, fontweight='bold')
-        ax1.set_xlabel('Numeric Probe Value')
-        ax1.set_ylabel('Empirical Probability Density')
-        ax1.legend(loc='upper right', fontsize=9)
-        ax1.grid(alpha=0.3)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 4.8))
 
     # Medium Tier Distributions
     med_a, med_b = [], []
@@ -294,13 +266,13 @@ def plot_distribution_separability():
             med_b.extend([r["numeric_answer"] for r in load_numeric_stream(sf) if r["index"] >= 200])
 
     if med_a and med_b:
-        ax2.hist(med_a, bins=25, alpha=0.6, label='Model A (llama3.2:1b)', color='royalblue', density=True)
-        ax2.hist(med_b, bins=25, alpha=0.6, label='Model B (llama3.2:3b)', color='purple', density=True)
-        ax2.set_title('Medium Tier (KS=0.402, p<1e-96)\nScale/Capacity Shift', fontsize=11, fontweight='bold')
-        ax2.set_xlabel('Numeric Probe Value')
-        ax2.set_ylabel('Empirical Probability Density')
-        ax2.legend(loc='upper right', fontsize=9)
-        ax2.grid(alpha=0.3)
+        ax1.hist(med_a, bins=25, alpha=0.6, label='Model A (llama3.2:1b)', color='royalblue', density=True)
+        ax1.hist(med_b, bins=25, alpha=0.6, label='Model B (llama3.2:3b)', color='purple', density=True)
+        ax1.set_title('Medium Tier (KS=0.402, p<1e-96)\nScale/Capacity Shift (1B → 3B)', fontsize=11, fontweight='bold')
+        ax1.set_xlabel('Numeric Probe Value')
+        ax1.set_ylabel('Empirical Probability Density')
+        ax1.legend(loc='upper right', fontsize=9)
+        ax1.grid(alpha=0.3)
 
     # Hard Tier Distributions
     hard_a, hard_b = [], []
@@ -313,20 +285,19 @@ def plot_distribution_separability():
             hard_b.extend([r["numeric_answer"] for r in load_numeric_stream(sf) if r["index"] >= 200])
 
     if hard_a and hard_b:
-        ax3.hist(hard_a, bins=25, alpha=0.6, label='Model A (llama3.2:3b-q4)', color='royalblue', density=True)
-        ax3.hist(hard_b, bins=25, alpha=0.6, label='Model B (llama3.2:3b-q8)', color='crimson', density=True)
-        ax3.set_title('Hard Tier (Quantization Shift)\nPrecision Drift (Q4_K_M → Q8_0)', fontsize=11, fontweight='bold')
-        ax3.set_xlabel('Numeric Probe Value')
-        ax3.set_ylabel('Empirical Probability Density')
-        ax3.legend(loc='upper right', fontsize=9)
-        ax3.grid(alpha=0.3)
+        ax2.hist(hard_a, bins=25, alpha=0.6, label='Model A (llama3.2:3b-q4)', color='royalblue', density=True)
+        ax2.hist(hard_b, bins=25, alpha=0.6, label='Model B (llama3.2:3b-q8)', color='crimson', density=True)
+        ax2.set_title('Hard Tier (Quantization Shift)\nPrecision Drift (Q4_K_M → Q8_0)', fontsize=11, fontweight='bold')
+        ax2.set_xlabel('Numeric Probe Value')
+        ax2.set_ylabel('Empirical Probability Density')
+        ax2.legend(loc='upper right', fontsize=9)
+        ax2.grid(alpha=0.3)
 
     plt.tight_layout()
-    out_path = os.path.join(FIG_DIR, "distribution_separability_easy_vs_medium.png")
-    out_path_all = os.path.join(FIG_DIR, "distribution_separability_all_tiers.png")
+    out_path = os.path.join(FIG_DIR, "distribution_separability_medium_hard.png")
     plt.savefig(out_path, dpi=150)
-    plt.savefig(out_path_all, dpi=150)
     plt.close()
-    return out_path_all
+    return out_path
+
 
 

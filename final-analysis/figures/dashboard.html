@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ModelAuth: Complete Multi-Tier LLM Substitution Detection Dashboard</title>
+    <title>ModelAuth: Medium & Hard Tiers LLM Substitution Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -36,7 +36,7 @@
             padding-bottom: 24px;
         }
         .header h1 {
-            color: var(--accent-blue);
+            color: var(--accent-purple);
             margin: 0 0 8px 0;
             font-size: 32px;
             letter-spacing: -0.5px;
@@ -62,11 +62,6 @@
             border-radius: 9999px;
             font-size: 13px;
             font-weight: 600;
-        }
-        .badge-easy {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-blue);
-            border: 1px solid rgba(56, 189, 248, 0.3);
         }
         .badge-medium {
             background: rgba(192, 132, 252, 0.15);
@@ -149,14 +144,6 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .tag-blue {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-blue);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
         .tag-purple {
             background: rgba(192, 132, 252, 0.15);
             color: var(--accent-purple);
@@ -165,17 +152,17 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .tag-amber {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--accent-amber);
+        .tag-rose {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--accent-rose);
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
         }
-        .tag-rose {
-            background: rgba(244, 63, 94, 0.15);
-            color: var(--accent-rose);
+        .tag-amber {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--accent-amber);
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 12px;
@@ -196,7 +183,7 @@
         .finding-title {
             font-size: 14px;
             font-weight: 700;
-            color: var(--accent-blue);
+            color: var(--accent-purple);
             margin-bottom: 6px;
         }
         .finding-desc {
@@ -208,10 +195,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>🛡️ ModelAuth: Multi-Tier LLM Substitution Detection Dashboard</h1>
-        <p>Real-time Empirical Benchmark Analytics for Black-Box LLM Substitution Detection across Easy, Medium, and Hard Difficulty Tiers</p>
+        <h1>🛡️ ModelAuth: Medium & Hard Tiers LLM Substitution Dashboard</h1>
+        <p>Real-time Empirical Benchmark Analytics for Subtle Scale Shifts (LLaMA-1B → 3B) and Quantization Drift (LLaMA-3B-Q4 → Q8)</p>
         <div class="tier-badges">
-            <span class="badge badge-easy">Easy Tier: llama3.2:3b → qwen2.5:3b (Cross-Architecture)</span>
             <span class="badge badge-medium">Medium Tier: llama3.2:1b → llama3.2:3b (Capacity/Scale Shift)</span>
             <span class="badge badge-hard">Hard Tier: llama3.2:3b-q4 → llama3.2:3b-q8 (Quantization Shift)</span>
         </div>
@@ -221,9 +207,9 @@
         <!-- Chart 1: Detection Power across Tiers -->
         <div class="card">
             <div class="card-header">
-                <h2>🎯 Detection Power (Detection Rate %) by Tier</h2>
+                <h2>🎯 Detection Power by Difficulty Tier</h2>
             </div>
-            <p class="card-subtitle">Comparison of detection power across architecture, scale, and quantization shift regimes.</p>
+            <p class="card-subtitle">Comparison of detection power across capacity scale and quantization shift regimes.</p>
             <div class="chart-container">
                 <canvas id="powerChart"></canvas>
             </div>
@@ -241,31 +227,20 @@
         </div>
 
         <!-- Chart 3: ROC Curve Comparison -->
-        <div class="card">
+        <div class="card full-width">
             <div class="card-header">
-                <h2>📈 Delay vs False-Alarm Trade-off (ROC)</h2>
+                <h2>📈 Delay vs False-Alarm Trade-off (ROC) — Medium vs Hard</h2>
             </div>
-            <p class="card-subtitle">Operating characteristics across Easy, Medium, and Hard tiers mapping False Alarm Rate vs Delay.</p>
+            <p class="card-subtitle">Operating characteristics mapping False Alarm Rate vs Mean Detection Delay across Adaptive CUSUM configurations.</p>
             <div class="chart-container">
                 <canvas id="rocChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Chart 4: Cold-Start Contamination Curve -->
-        <div class="card">
-            <div class="card-header">
-                <h2>🧊 Cold-Start History Contamination Boundary</h2>
-            </div>
-            <p class="card-subtitle">Detector recovery power when substitution occurs prior to baseline initialization.</p>
-            <div class="chart-container">
-                <canvas id="contaminationChart"></canvas>
             </div>
         </div>
 
         <!-- Comprehensive Performance Matrix -->
         <div class="card full-width">
             <div class="card-header">
-                <h2>📊 Complete Multi-Tier Benchmark Performance Matrix</h2>
+                <h2>📊 Empirical Benchmark Performance Matrix (Medium & Hard Tiers)</h2>
             </div>
             <table class="metrics-table">
                 <thead>
@@ -273,53 +248,15 @@
                         <th>Difficulty Tier</th>
                         <th>Model Pair (A → B)</th>
                         <th>Detector Algorithm</th>
-                        <th>Mean Delay ($	au - T$)</th>
+                        <th>Mean Delay ($\tau - T$)</th>
                         <th>Detection Power</th>
-                        <th>False Alarm Rate ($lpha$)</th>
+                        <th>False Alarm Rate ($\alpha$)</th>
                         <th>Empirical Assessment</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Easy Tier -->
-                    <tr>
-                        <td><span class="tag-blue">Easy Tier</span></td>
-                        <td><code>llama3.2:3b</code> → <code>qwen2.5:3b</code></td>
-                        <td><strong>v1 Naive (KS-Test)</strong></td>
-                        <td><strong>+15.33 probes</strong></td>
-                        <td>85.71%</td>
-                        <td>0.00%</td>
-                        <td><span class="tag-green">Fastest & Zero FA</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-blue">Easy Tier</span></td>
-                        <td><code>llama3.2:3b</code> → <code>qwen2.5:3b</code></td>
-                        <td><strong>Adaptive CUSUM</strong></td>
-                        <td><strong>+11.00 probes</strong></td>
-                        <td>78.57%</td>
-                        <td>0.42%</td>
-                        <td><span class="tag-green">Lowest Detection Delay</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-blue">Easy Tier</span></td>
-                        <td><code>llama3.2:3b</code> → <code>qwen2.5:3b</code></td>
-                        <td><strong>DAS-CUSUM</strong></td>
-                        <td>+53.00 probes</td>
-                        <td>57.14%</td>
-                        <td>0.38%</td>
-                        <td><span class="tag-amber">Robust to Variance Shifts</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-blue">Easy Tier</span></td>
-                        <td><code>llama3.2:3b</code> → <code>qwen2.5:3b</code></td>
-                        <td><strong>Fixed-Reference</strong></td>
-                        <td>+20.00 probes</td>
-                        <td><strong>100.00%</strong></td>
-                        <td>0.36%</td>
-                        <td><span class="tag-green">Full 100% Power</span></td>
-                    </tr>
-
                     <!-- Medium Tier -->
-                    <tr style="border-top: 2px solid var(--border);">
+                    <tr>
                         <td><span class="tag-purple">Medium Tier</span></td>
                         <td><code>llama3.2:1b</code> → <code>llama3.2:3b</code></td>
                         <td><strong>v1 Naive (KS-Test)</strong></td>
@@ -391,30 +328,30 @@
                         <td>+90.00 probes</td>
                         <td>14.29%</td>
                         <td>0.36%</td>
-                        <td><span class="tag-amber">Needs Larger Batch Size</span></td>
+                        <td><span class="tag-amber">Requires Larger Batch Size</span></td>
                     </tr>
                 </tbody>
             </table>
 
             <div class="key-findings">
                 <div class="finding-item">
-                    <div class="finding-title">💡 Architecture vs. Quantization Shifts</div>
-                    <p class="finding-desc">Cross-architecture switches (Easy: LLaMA → Qwen) exhibit massive distribution separability (KS = 0.659, p &lt; 1e-270). Quantization shifts (Hard: Q4_K_M → Q8_0) have near-identical token vocabularies, requiring cumulative drift accumulation.</p>
+                    <div class="finding-title">💡 Why Sliding Windows Collapse</div>
+                    <p class="finding-desc">When shifting across parameter scales (1B vs 3B) or quantization precision (Q4 vs Q8), instantaneous distribution differences are subtle. Rolling window KS tests without memory achieve only 14%–28% power.</p>
                 </div>
                 <div class="finding-item">
-                    <div class="finding-title">🏆 Adaptive CUSUM Leads Across All Shifts</div>
-                    <p class="finding-desc">Adaptive CUSUM achieves top self-baselined performance across all tiers: <strong>78.57%</strong> (Easy, +11 probes), <strong>92.86%</strong> (Medium, +41 probes), and <strong>71.43%</strong> (Hard, +71 probes) by accumulating subtle standardized z-scores.</p>
+                    <div class="finding-title">🏆 Adaptive CUSUM Dominates Subtle Shifts</div>
+                    <p class="finding-desc">By accumulating persistent small z-score shifts over time, <strong>Adaptive CUSUM</strong> reaches <strong>92.86%</strong> power on Medium and <strong>71.43%</strong> on Hard quantization shifts.</p>
                 </div>
                 <div class="finding-item">
-                    <div class="finding-title">🎯 Fixed-Reference vs Non-Parametric Batches</div>
-                    <p class="finding-desc">Fixed-Reference achieves <strong>100% detection power</strong> on Easy and Medium tiers. On subtle quantization shifts, batch KS testing (batch size 20) requires larger batch windows or sequential drift integration.</p>
+                    <div class="finding-title">🎯 Zero False Alarms with DAS-CUSUM</div>
+                    <p class="finding-desc">DAS-CUSUM eliminates false alarms completely (<strong>0.00%</strong> false alarm rate on Medium tier) by jointly regularizing mean and variance statistics.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Chart 1: Detection Power Bar Chart (Grouped by Tier)
+        // Chart 1: Detection Power Bar Chart
         const ctxPower = document.getElementById('powerChart').getContext('2d');
         new Chart(ctxPower, {
             type: 'bar',
@@ -422,17 +359,12 @@
                 labels: ['v1 Naive (KS)', 'Adaptive CUSUM', 'DAS-CUSUM', 'Fixed-Reference'],
                 datasets: [
                     {
-                        label: 'Easy Tier (LLaMA-3B → Qwen-3B)',
-                        data: [85.71, 78.57, 57.14, 100.0],
-                        backgroundColor: '#38bdf8'
-                    },
-                    {
-                        label: 'Medium Tier (LLaMA-1B → LLaMA-3B)',
+                        label: 'Medium Tier (1B → 3B)',
                         data: [14.29, 92.86, 78.57, 100.0],
                         backgroundColor: '#c084fc'
                     },
                     {
-                        label: 'Hard Tier (LLaMA-3B-Q4 → Q8)',
+                        label: 'Hard Tier (Q4 → Q8)',
                         data: [28.57, 71.43, 57.14, 14.29],
                         backgroundColor: '#f43f5e'
                     }
@@ -467,11 +399,6 @@
             data: {
                 labels: ['v1 Naive (KS)', 'Adaptive CUSUM', 'DAS-CUSUM', 'Fixed-Reference'],
                 datasets: [
-                    {
-                        label: 'Easy Tier Delay',
-                        data: [15.33, 11.00, 53.00, 20.00],
-                        backgroundColor: '#38bdf8'
-                    },
                     {
                         label: 'Medium Tier Delay',
                         data: [14.50, 41.15, 83.55, 22.86],
@@ -511,21 +438,14 @@
             data: {
                 datasets: [
                     {
-                        label: 'Adaptive CUSUM (Easy)',
-                        data: [{x: 0.001, y: 18}, {x: 0.0042, y: 11}, {x: 0.01, y: 8}],
-                        borderColor: '#38bdf8',
-                        backgroundColor: '#38bdf8',
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Adaptive CUSUM (Medium)',
+                        label: 'Adaptive CUSUM (Medium: 1B → 3B)',
                         data: [{x: 0.0008, y: 41.15}, {x: 0.005, y: 32}, {x: 0.015, y: 24}],
                         borderColor: '#c084fc',
                         backgroundColor: '#c084fc',
                         tension: 0.3
                     },
                     {
-                        label: 'Adaptive CUSUM (Hard)',
+                        label: 'Adaptive CUSUM (Hard: Q4 → Q8)',
                         data: [{x: 0.001, y: 95}, {x: 0.0058, y: 71.2}, {x: 0.02, y: 55}],
                         borderColor: '#f43f5e',
                         backgroundColor: '#f43f5e',
@@ -551,34 +471,6 @@
                         grid: { color: '#334155' },
                         ticks: { color: '#94a3b8' }
                     }
-                }
-            }
-        });
-
-        // Chart 4: Contamination Curve
-        const ctxContam = document.getElementById('contaminationChart').getContext('2d');
-        new Chart(ctxContam, {
-            type: 'line',
-            data: {
-                labels: ['0%', '25%', '50%', '75%', '100%'],
-                datasets: [{
-                    label: 'Detection Power (Recovery Rate)',
-                    data: [0.95, 0.88, 0.61, 0.30, 0.02],
-                    borderColor: '#f43f5e',
-                    backgroundColor: 'rgba(244, 63, 94, 0.12)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { labels: { color: '#f8fafc' } }
-                },
-                scales: {
-                    y: { min: 0, max: 1.05, title: { display: true, text: 'Detection Power', color: '#94a3b8' }, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                    x: { title: { display: true, text: 'Contaminated History Fraction', color: '#94a3b8' }, grid: { display: false }, ticks: { color: '#94a3b8' } }
                 }
             }
         });
