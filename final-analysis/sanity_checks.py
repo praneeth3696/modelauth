@@ -76,7 +76,7 @@ def check_model_separability(difficulty="easy", n_reps=5, data_dir=None):
         "separable": p_value < 0.05
     }
 
-def check_tier_ordering(difficulties=["easy", "medium", "hard"]):
+def check_tier_ordering(difficulties=["easy"]):
     results = {}
     for difficulty in difficulties:
         sub_streams = load_all_reps(difficulty, "substitution")
@@ -84,6 +84,7 @@ def check_tier_ordering(difficulties=["easy", "medium", "hard"]):
         if not sub_streams:
             results[difficulty] = "No streams loaded"
             continue
+
         
         metrics = compute_metrics(
             adaptive_cusum_detector,

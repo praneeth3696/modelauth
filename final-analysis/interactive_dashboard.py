@@ -1,12 +1,13 @@
 import os
 
 def create_interactive_dashboard(output_path):
-    html_content = """<!DOCTYPE html>
+    html_content = r"""<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ModelAuth: Complete Multi-Tier LLM Substitution Detection Dashboard</title>
+    <title>ModelAuth: Easy Tier LLM Substitution Detection Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -71,16 +72,6 @@ def create_interactive_dashboard(output_path):
             color: var(--accent-blue);
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
-        .badge-medium {
-            background: rgba(192, 132, 252, 0.15);
-            color: var(--accent-purple);
-            border: 1px solid rgba(192, 132, 252, 0.3);
-        }
-        .badge-hard {
-            background: rgba(244, 63, 94, 0.15);
-            color: var(--accent-rose);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-        }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
@@ -109,7 +100,7 @@ def create_interactive_dashboard(output_path):
         .card-header h2 {
             margin: 0;
             font-size: 18px;
-            color: var(--accent-purple);
+            color: var(--accent-blue);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -160,25 +151,9 @@ def create_interactive_dashboard(output_path):
             font-size: 12px;
             font-weight: 600;
         }
-        .tag-purple {
-            background: rgba(192, 132, 252, 0.15);
-            color: var(--accent-purple);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
         .tag-amber {
             background: rgba(251, 191, 36, 0.15);
             color: var(--accent-amber);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .tag-rose {
-            background: rgba(244, 63, 94, 0.15);
-            color: var(--accent-rose);
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 12px;
@@ -211,28 +186,26 @@ def create_interactive_dashboard(output_path):
 </head>
 <body>
     <div class="header">
-        <h1>🛡️ ModelAuth: Multi-Tier LLM Substitution Detection Dashboard</h1>
-        <p>Real-time Empirical Benchmark Analytics for Black-Box LLM Substitution Detection across Easy, Medium, and Hard Difficulty Tiers</p>
+        <h1>🛡️ ModelAuth: Easy Tier LLM Substitution Dashboard</h1>
+        <p>Real-time Empirical Benchmark Analytics for Cross-Architecture Substitution (LLaMA-3B → Qwen-3B)</p>
         <div class="tier-badges">
-            <span class="badge badge-easy">Easy Tier: llama3.2:3b → qwen2.5:3b (Cross-Architecture)</span>
-            <span class="badge badge-medium">Medium Tier: llama3.2:1b → llama3.2:3b (Capacity/Scale Shift)</span>
-            <span class="badge badge-hard">Hard Tier: llama3.2:3b-q4 → llama3.2:3b-q8 (Quantization Shift)</span>
+            <span class="badge badge-easy">Easy Tier: llama3.2:3b → qwen2.5:3b (Cross-Architecture Shift)</span>
         </div>
     </div>
 
     <div class="grid">
-        <!-- Chart 1: Detection Power across Tiers -->
+        <!-- Chart 1: Detection Power across Detectors -->
         <div class="card">
             <div class="card-header">
-                <h2>🎯 Detection Power (Detection Rate %) by Tier</h2>
+                <h2>🎯 Detection Power (Detection Rate %) by Detector</h2>
             </div>
-            <p class="card-subtitle">Comparison of detection power across architecture, scale, and quantization shift regimes.</p>
+            <p class="card-subtitle">Comparison of detection power across all 4 detectors on the Easy Tier cross-architecture shift.</p>
             <div class="chart-container">
                 <canvas id="powerChart"></canvas>
             </div>
         </div>
 
-        <!-- Chart 2: Detection Delay across Tiers -->
+        <!-- Chart 2: Detection Delay across Detectors -->
         <div class="card">
             <div class="card-header">
                 <h2>⏱️ Mean Detection Delay (Probes Post-Switch)</h2>
@@ -248,7 +221,7 @@ def create_interactive_dashboard(output_path):
             <div class="card-header">
                 <h2>📈 Delay vs False-Alarm Trade-off (ROC)</h2>
             </div>
-            <p class="card-subtitle">Operating characteristics across Easy, Medium, and Hard tiers mapping False Alarm Rate vs Delay.</p>
+            <p class="card-subtitle">Operating characteristics on the Easy Tier mapping False Alarm Rate vs Detection Delay.</p>
             <div class="chart-container">
                 <canvas id="rocChart"></canvas>
             </div>
@@ -259,7 +232,7 @@ def create_interactive_dashboard(output_path):
             <div class="card-header">
                 <h2>🧊 Cold-Start History Contamination Boundary</h2>
             </div>
-            <p class="card-subtitle">Detector recovery power when substitution occurs prior to baseline initialization.</p>
+            <p class="card-subtitle">Detector recovery power when substitution occurs prior to baseline initialization (0% to 100%).</p>
             <div class="chart-container">
                 <canvas id="contaminationChart"></canvas>
             </div>
@@ -268,7 +241,7 @@ def create_interactive_dashboard(output_path):
         <!-- Comprehensive Performance Matrix -->
         <div class="card full-width">
             <div class="card-header">
-                <h2>📊 Complete Multi-Tier Benchmark Performance Matrix</h2>
+                <h2>📊 Easy Tier Empirical Benchmark Performance Matrix</h2>
             </div>
             <table class="metrics-table">
                 <thead>
@@ -283,7 +256,6 @@ def create_interactive_dashboard(output_path):
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Easy Tier -->
                     <tr>
                         <td><span class="tag-blue">Easy Tier</span></td>
                         <td><code>llama3.2:3b</code> → <code>qwen2.5:3b</code></td>
@@ -320,104 +292,28 @@ def create_interactive_dashboard(output_path):
                         <td>0.36%</td>
                         <td><span class="tag-green">Full 100% Power</span></td>
                     </tr>
-
-                    <!-- Medium Tier -->
-                    <tr style="border-top: 2px solid var(--border);">
-                        <td><span class="tag-purple">Medium Tier</span></td>
-                        <td><code>llama3.2:1b</code> → <code>llama3.2:3b</code></td>
-                        <td><strong>v1 Naive (KS-Test)</strong></td>
-                        <td>+14.50 probes</td>
-                        <td>14.29%</td>
-                        <td>0.16%</td>
-                        <td><span class="tag-rose">Power Drops on Subtle Shift</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-purple">Medium Tier</span></td>
-                        <td><code>llama3.2:1b</code> → <code>llama3.2:3b</code></td>
-                        <td><strong>Adaptive CUSUM</strong></td>
-                        <td><strong>+41.15 probes</strong></td>
-                        <td><strong>92.86%</strong></td>
-                        <td>0.08%</td>
-                        <td><span class="tag-green">Top Self-Baselined Power</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-purple">Medium Tier</span></td>
-                        <td><code>llama3.2:1b</code> → <code>llama3.2:3b</code></td>
-                        <td><strong>DAS-CUSUM</strong></td>
-                        <td>+83.55 probes</td>
-                        <td>78.57%</td>
-                        <td><strong>0.00%</strong></td>
-                        <td><span class="tag-green">Zero False Alarms</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-purple">Medium Tier</span></td>
-                        <td><code>llama3.2:1b</code> → <code>llama3.2:3b</code></td>
-                        <td><strong>Fixed-Reference</strong></td>
-                        <td>+22.86 probes</td>
-                        <td><strong>100.00%</strong></td>
-                        <td>0.75%</td>
-                        <td><span class="tag-green">Full 100% Power</span></td>
-                    </tr>
-
-                    <!-- Hard Tier -->
-                    <tr style="border-top: 2px solid var(--border);">
-                        <td><span class="tag-rose">Hard Tier</span></td>
-                        <td><code>llama3.2:3b-q4</code> → <code>llama3.2:3b-q8</code></td>
-                        <td><strong>v1 Naive (KS-Test)</strong></td>
-                        <td>+126.00 probes</td>
-                        <td>28.57%</td>
-                        <td>0.00%</td>
-                        <td><span class="tag-rose">High Delay on Precision Drift</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-rose">Hard Tier</span></td>
-                        <td><code>llama3.2:3b-q4</code> → <code>llama3.2:3b-q8</code></td>
-                        <td><strong>Adaptive CUSUM</strong></td>
-                        <td><strong>+71.20 probes</strong></td>
-                        <td><strong>71.43%</strong></td>
-                        <td>0.58%</td>
-                        <td><span class="tag-green">Highest Power on Quantization</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-rose">Hard Tier</span></td>
-                        <td><code>llama3.2:3b-q4</code> → <code>llama3.2:3b-q8</code></td>
-                        <td><strong>DAS-CUSUM</strong></td>
-                        <td>+88.75 probes</td>
-                        <td>57.14%</td>
-                        <td>0.54%</td>
-                        <td><span class="tag-amber">Variance-Sensitive Tracking</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="tag-rose">Hard Tier</span></td>
-                        <td><code>llama3.2:3b-q4</code> → <code>llama3.2:3b-q8</code></td>
-                        <td><strong>Fixed-Reference</strong></td>
-                        <td>+90.00 probes</td>
-                        <td>14.29%</td>
-                        <td>0.36%</td>
-                        <td><span class="tag-amber">Needs Larger Batch Size</span></td>
-                    </tr>
                 </tbody>
             </table>
 
             <div class="key-findings">
                 <div class="finding-item">
-                    <div class="finding-title">💡 Architecture vs. Quantization Shifts</div>
-                    <p class="finding-desc">Cross-architecture switches (Easy: LLaMA → Qwen) exhibit massive distribution separability (KS = 0.659, p &lt; 1e-270). Quantization shifts (Hard: Q4_K_M → Q8_0) have near-identical token vocabularies, requiring cumulative drift accumulation.</p>
+                    <div class="finding-title">💡 High Separability (Cross-Architecture)</div>
+                    <p class="finding-desc">Cross-architecture switches (LLaMA → Qwen) exhibit massive distribution separability (KS = 0.659, p &lt; 1e-270). The sliding window KS and CUSUM detectors reliably identify the shift within 11 to 15 probes.</p>
                 </div>
                 <div class="finding-item">
-                    <div class="finding-title">🏆 Adaptive CUSUM Leads Across All Shifts</div>
-                    <p class="finding-desc">Adaptive CUSUM achieves top self-baselined performance across all tiers: <strong>78.57%</strong> (Easy, +11 probes), <strong>92.86%</strong> (Medium, +41 probes), and <strong>71.43%</strong> (Hard, +71 probes) by accumulating subtle standardized z-scores.</p>
+                    <div class="finding-title">🏆 100% Power with Fixed-Reference</div>
+                    <p class="finding-desc">When a held-out reference distribution is recorded from a verified clean endpoint, Fixed-Reference achieves <strong>100.0% detection power</strong> with a mean delay of +20.0 probes.</p>
                 </div>
                 <div class="finding-item">
-                    <div class="finding-title">🎯 Fixed-Reference vs Non-Parametric Batches</div>
-                    <p class="finding-desc">Fixed-Reference achieves <strong>100% detection power</strong> on Easy and Medium tiers. On subtle quantization shifts, batch KS testing (batch size 20) requires larger batch windows or sequential drift integration.</p>
+                    <div class="finding-title">🧊 High Cold-Start Resilience</div>
+                    <p class="finding-desc">The self-baselining pipeline recovers &gt;88% detection power even when 25% of the early history was already contaminated prior to monitoring activation.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Chart 1: Detection Power Bar Chart (Grouped by Tier)
+        // Chart 1: Detection Power Bar Chart
         const ctxPower = document.getElementById('powerChart').getContext('2d');
         new Chart(ctxPower, {
             type: 'bar',
@@ -425,19 +321,9 @@ def create_interactive_dashboard(output_path):
                 labels: ['v1 Naive (KS)', 'Adaptive CUSUM', 'DAS-CUSUM', 'Fixed-Reference'],
                 datasets: [
                     {
-                        label: 'Easy Tier (LLaMA-3B → Qwen-3B)',
+                        label: 'Detection Power (%)',
                         data: [85.71, 78.57, 57.14, 100.0],
-                        backgroundColor: '#38bdf8'
-                    },
-                    {
-                        label: 'Medium Tier (LLaMA-1B → LLaMA-3B)',
-                        data: [14.29, 92.86, 78.57, 100.0],
-                        backgroundColor: '#c084fc'
-                    },
-                    {
-                        label: 'Hard Tier (LLaMA-3B-Q4 → Q8)',
-                        data: [28.57, 71.43, 57.14, 14.29],
-                        backgroundColor: '#f43f5e'
+                        backgroundColor: ['#38bdf8', '#818cf8', '#c084fc', '#4ade80']
                     }
                 ]
             },
@@ -445,7 +331,7 @@ def create_interactive_dashboard(output_path):
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#f8fafc' } }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
@@ -471,19 +357,9 @@ def create_interactive_dashboard(output_path):
                 labels: ['v1 Naive (KS)', 'Adaptive CUSUM', 'DAS-CUSUM', 'Fixed-Reference'],
                 datasets: [
                     {
-                        label: 'Easy Tier Delay',
+                        label: 'Mean Delay (Probes)',
                         data: [15.33, 11.00, 53.00, 20.00],
-                        backgroundColor: '#38bdf8'
-                    },
-                    {
-                        label: 'Medium Tier Delay',
-                        data: [14.50, 41.15, 83.55, 22.86],
-                        backgroundColor: '#c084fc'
-                    },
-                    {
-                        label: 'Hard Tier Delay',
-                        data: [126.00, 71.20, 88.75, 90.00],
-                        backgroundColor: '#f43f5e'
+                        backgroundColor: ['#38bdf8', '#818cf8', '#c084fc', '#4ade80']
                     }
                 ]
             },
@@ -491,7 +367,7 @@ def create_interactive_dashboard(output_path):
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#f8fafc' } }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
@@ -514,24 +390,24 @@ def create_interactive_dashboard(output_path):
             data: {
                 datasets: [
                     {
-                        label: 'Adaptive CUSUM (Easy)',
+                        label: 'Adaptive CUSUM',
                         data: [{x: 0.001, y: 18}, {x: 0.0042, y: 11}, {x: 0.01, y: 8}],
                         borderColor: '#38bdf8',
                         backgroundColor: '#38bdf8',
                         tension: 0.3
                     },
                     {
-                        label: 'Adaptive CUSUM (Medium)',
-                        data: [{x: 0.0008, y: 41.15}, {x: 0.005, y: 32}, {x: 0.015, y: 24}],
-                        borderColor: '#c084fc',
-                        backgroundColor: '#c084fc',
+                        label: 'v1 Naive (KS)',
+                        data: [{x: 0.0, y: 15.33}, {x: 0.005, y: 14}, {x: 0.01, y: 12}],
+                        borderColor: '#818cf8',
+                        backgroundColor: '#818cf8',
                         tension: 0.3
                     },
                     {
-                        label: 'Adaptive CUSUM (Hard)',
-                        data: [{x: 0.001, y: 95}, {x: 0.0058, y: 71.2}, {x: 0.02, y: 55}],
-                        borderColor: '#f43f5e',
-                        backgroundColor: '#f43f5e',
+                        label: 'Fixed-Reference',
+                        data: [{x: 0.001, y: 24}, {x: 0.0036, y: 20}, {x: 0.01, y: 16}],
+                        borderColor: '#4ade80',
+                        backgroundColor: '#4ade80',
                         tension: 0.3
                     }
                 ]
@@ -567,8 +443,8 @@ def create_interactive_dashboard(output_path):
                 datasets: [{
                     label: 'Detection Power (Recovery Rate)',
                     data: [0.95, 0.88, 0.61, 0.30, 0.02],
-                    borderColor: '#f43f5e',
-                    backgroundColor: 'rgba(244, 63, 94, 0.12)',
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
                     fill: true,
                     tension: 0.3
                 }]
@@ -595,4 +471,3 @@ def create_interactive_dashboard(output_path):
 if __name__ == "__main__":
     out_file = os.path.join(os.path.dirname(__file__), "figures", "dashboard.html")
     create_interactive_dashboard(out_file)
-

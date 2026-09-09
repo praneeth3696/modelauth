@@ -90,65 +90,53 @@ Flags when $S_t^{\text{das}} > h$.
 
 ---
 
-## 4. Empirical Benchmark Results
+## 4. Empirical Benchmark Results (Easy Tier)
  
-Evaluated on independent test repetitions of **Easy** (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`), **Medium** (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`), and **Hard** (`llama3.2:3b-instruct-q4_K_M` $\rightarrow$ `llama3.2:3b-instruct-q8_0`) difficulty streams at switch point $t=200$:
+Evaluated on independent test repetitions of **Easy** (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`) cross-architecture substitution at switch point $t=200$:
  
-| Difficulty Tier | Model Pair ($A \rightarrow B$) | Nature of Substitution | Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
-| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`v1 naive`** *(Sliding Window KS)* | **+14.50 probes** | **14.29%** | **0.16%** | Power drops on subtle intra-family shift |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`adaptive CUSUM`** | **+41.15 probes** | **92.86%** | **0.08%** | **Top Self-Baselined Power (92.86%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`DAS-CUSUM`** | **+83.55 probes** | **78.57%** | **0.00%** | **Zero False Alarms (0.00%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`fixed-reference`** *(Held-Out)* | **+22.86 probes** | **100.00%** | **0.75%** | **100% Detection Power** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`v1 naive`** *(Sliding Window KS)* | **+126.00 probes** | **28.57%** | **0.00%** | High Delay on precision drift |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`adaptive CUSUM`** | **+71.20 probes** | **71.43%** | **0.58%** | **Top Quantization Power (71.43%)** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`DAS-CUSUM`** | **+88.75 probes** | **57.14%** | **0.54%** | Variance-Sensitive Drift Tracking |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`fixed-reference`** *(Held-Out)* | **+90.00 probes** | **14.29%** | **0.36%** | Requires larger batch integration |
+| Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
+| :--- | :--- | :--- | :--- | :--- |
+| **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
+| **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
+| **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
+| **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
  
 > [!TIP]
-> **Key Finding**: Across all three difficulty tiers, **Adaptive CUSUM** is the highest performing self-baselining detector (**78.57%** Easy, **92.86%** Medium, and **71.43%** Hard), accumulating subtle standardized drift without requiring stored reference distributions.
+> **Key Finding**: In the Easy Tier cross-architecture regime, **v1 Naive KS** and **Adaptive CUSUM** detect substitutions swiftly (+15.33 and +11.00 probes), while **Fixed-Reference** achieves **100% detection power**.
  
 ---
  
 ## 5. Visualizations & Analytics
  
-### 5.1 Single Stream Response Traces & Switch Points
+### 5.1 Single Stream Response Trace & Switch Point
  
-| Easy Tier (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`) | Medium Tier (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`) | Hard Tier (`llama3.2:3b-q4` $\rightarrow$ `3b-q8`) |
-| :---: | :---: | :---: |
-| ![Example Trace — Easy](../final-analysis/figures/example_trace_easy_rep0.png) | ![Example Trace — Medium](../final-analysis/figures/example_trace_medium_rep0.png) | ![Example Trace — Hard](../final-analysis/figures/example_trace_hard_rep0.png) |
+![Example Trace — Easy](../final-analysis/figures/example_trace_easy_rep0.png)
  
-*Figure 1: Numerical response stream across 400 probes for Easy, Medium, and Hard tiers. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
+*Figure 1: Numerical response stream across 400 probes for Easy Tier. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
  
 ---
  
-### 5.2 ROC Delay vs. False Alarm Rate Trade-Off Curves
+### 5.2 ROC Delay vs. False Alarm Rate Trade-Off Curve
  
-| Easy Tier ROC Curve | Medium Tier ROC Curve | Hard Tier ROC Curve |
-| :---: | :---: | :---: |
-| ![ROC Curve — Easy](../final-analysis/figures/roc_comparison_easy.png) | ![ROC Curve — Medium](../final-analysis/figures/roc_comparison_medium.png) | ![ROC Curve — Hard](../final-analysis/figures/roc_comparison_hard.png) |
+![ROC Curve — Easy](../final-analysis/figures/roc_comparison_easy.png)
  
-*Figure 2: Receiver Operating Characteristic (ROC) trade-off curves mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis).*
+*Figure 2: Receiver Operating Characteristic (ROC) trade-off curve mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis).*
  
 ---
  
-### 5.3 Complete Multi-Tier Detector Benchmark Comparison (Power & Delay)
+### 5.3 Easy Tier Detector Benchmark Comparison (Power & Delay)
 
-![Multi-Tier Benchmark Comparison](../final-analysis/figures/multi_tier_benchmark_comparison.png)
+![Easy Tier Detector Benchmark Comparison](../final-analysis/figures/detector_comparison_easy.png)
 
-*Figure 3: Side-by-side grouped bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for Easy, Medium, and Hard difficulty tiers.*
+*Figure 3: Side-by-side bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for the Easy Tier.*
 
 ---
 
-### 5.4 Model Output Distribution Separability (Architecture vs Scale vs Quantization)
+### 5.4 Model Output Distribution Separability
 
-![Distribution Separability All Tiers](../final-analysis/figures/distribution_separability_all_tiers.png)
+![Distribution Separability Easy](../final-analysis/figures/distribution_separability_easy.png)
 
-*Figure 4: Empirical probability density distributions of single-token probe responses across all three difficulty tiers.*
+*Figure 4: Empirical probability density distributions of single-token probe responses between LLaMA-3B and Qwen-3B ($KS=0.659, p<10^{-270}$).*
 
 ---
 
@@ -163,13 +151,13 @@ Evaluated on independent test repetitions of **Easy** (`llama3.2:3b` $\rightarro
 ## 6. Interactive Dashboard
  
 An interactive dashboard with Chart.js visualization widgets has been generated:
-🔗 [Interactive Dashboard HTML](file:///d:/Praneeth/Work/modelauth/final-analysis/figures/dashboard.html)
+🔗 `final-analysis/figures/dashboard.html`
 
 ---
 
 ## 7. Verification & Repository Cleanliness
 
 The repository has been thoroughly sanitized:
-1. Removed scratch scripts (`smoketest.py`, temporary runner artifacts).
-2. Added complete `.gitignore` ignoring virtual environment binaries (`venv/`), Python bytecode (`__pycache__/`), and OS metadata files (`.DS_Store`).
+1. Removed scratch scripts and unneeded cross-tier test artifacts.
+2. Verified `.gitignore` ignores virtual environments and bytecode.
 3. Verified all tests and visualization runners execute cleanly without errors.

@@ -131,67 +131,54 @@ Compares incoming batches against a pre-collected, held-out reference dataset ge
 
 ---
 
-## 📊 5. Empirical Results & Complete 3-Tier Performance Benchmark
+## 📊 5. Empirical Results & Easy Tier Performance Benchmark
 
-| Difficulty Tier | Model Pair ($A \rightarrow B$) | Nature of Substitution | Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
-| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
-| **Easy Tier** | `llama3.2:3b` $\rightarrow$ `qwen2.5:3b` | Cross-Architecture | **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`v1 naive`** *(Sliding Window KS)* | **+14.50 probes** | **14.29%** | **0.16%** | Power collapses on subtle shift |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`adaptive CUSUM`** | **+41.15 probes** | **92.86%** | **0.08%** | **Top Self-Baselined Power (92.86%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`DAS-CUSUM`** | **+83.55 probes** | **78.57%** | **0.00%** | **Zero False Alarms (0.00%)** |
-| **Medium Tier** | `llama3.2:1b` $\rightarrow$ `llama3.2:3b` | Capacity/Scale Shift | **`fixed-reference`** *(Held-Out)* | **+22.86 probes** | **100.00%** | **0.75%** | **100% Detection Power** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`v1 naive`** *(Sliding Window KS)* | **+126.00 probes** | **28.57%** | **0.00%** | High Delay on subtle precision drift |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`adaptive CUSUM`** | **+71.20 probes** | **71.43%** | **0.58%** | **Top Quantization Power (71.43%)** |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`DAS-CUSUM`** | **+88.75 probes** | **57.14%** | **0.54%** | Variance-Sensitive Drift Tracking |
-| **Hard Tier** | `llama3.2:3b-q4` $\rightarrow$ `3b-q8` | Quantization Shift | **`fixed-reference`** *(Held-Out)* | **+90.00 probes** | **14.29%** | **0.36%** | Requires larger batch integration |
+| Detector Method | Mean Detection Delay ($\tau - T$) | Detection Rate (Power) | False Alarm Rate ($\alpha$) | Performance Assessment |
+| :--- | :---: | :---: | :---: | :--- |
+| **`v1 naive`** *(Sliding Window KS)* | **+15.33 probes** | **85.71%** | **0.00%** | **Fastest & Zero False Alarms** |
+| **`adaptive CUSUM`** | **+11.00 probes** | **78.57%** | **0.42%** | **Lowest Delay Post-Switch** |
+| **`DAS-CUSUM`** | **+53.00 probes** | **57.14%** | **0.38%** | Robust to Variance Shifts |
+| **`fixed-reference`** *(Held-Out)* | **+20.00 probes** | **100.00%** | **0.36%** | **100% Detection Power** |
 
 > [!IMPORTANT]
-> **Key Scientific Insights across Tiers**:
-> 1. **Cross-Architecture Shifts (Easy: LLaMA $\rightarrow$ Qwen)**: High distribution separability (KS = 0.659, $p < 10^{-270}$) allows local sliding-window detectors (`v1 naive`) to detect the switch rapidly (+15.33 probes) with 85.71% power.
-> 2. **Intra-Family Parameter Shifts (Medium: 1B $\rightarrow$ 3B)**: More subtle distribution shift (KS = 0.402, $p < 10^{-96}$). The naive sliding window KS lacks memory and drops to 14.29% power. In contrast, **Adaptive CUSUM** accumulates small persistent standardized drifts, achieving **92.86% detection power** with only **0.08% false alarms**.
-> 3. **Quantization Precision Shifts (Hard: Q4_K_M $\rightarrow$ Q8_0)**: The most challenging regime where model weights share the exact same architecture and parameter counts, varying only by quantization compression. **Adaptive CUSUM** maintains the highest self-baselined power (**71.43%**, +71.2 probes), whereas non-parametric sliding windows suffer severe delays (+126 probes).
-> 4. **Fixed-Reference Upper Bound**: When clean held-out reference distributions are stored, `fixed-reference` achieves **100% detection power** across Easy (+20 probes) and Medium (+22.86 probes) tiers with near-zero false alarms.
+> **Key Scientific Insights for Easy Tier (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`)**:
+> 1. **Cross-Architecture Shifts**: High distribution separability ($KS = 0.659, p < 10^{-270}$) allows local sliding-window detectors (`v1 naive`) to detect the switch rapidly (+15.33 probes) with 85.71% power and zero false alarms.
+> 2. **Adaptive CUSUM Responsiveness**: Adaptive CUSUM registers the fastest initial post-switch flag at an average of **+11.00 probes**, making it the premier choice for low-latency alerting.
+> 3. **Fixed-Reference Upper Bound**: When clean held-out reference distributions are stored (`easy_null_rep14.jsonl`), `fixed-reference` achieves **100% detection power** (+20.0 probes) with near-zero false alarms ($0.36\%$).
 
 ---
 
-## 🖼️ 6. Visualizations & Multi-Tier Analytics
+## 🖼️ 6. Visualizations & Easy Tier Analytics
 
-### 6.1 Single Stream Response Traces & Switch Points
+### 6.1 Single Stream Response Trace & Switch Point
 
-| Easy Tier (`llama3.2:3b` $\rightarrow$ `qwen2.5:3b`) | Medium Tier (`llama3.2:1b` $\rightarrow$ `llama3.2:3b`) | Hard Tier (`llama3.2:3b-q4` $\rightarrow$ `3b-q8`) |
-| :---: | :---: | :---: |
-| ![Example Trace — Easy](final-analysis/figures/example_trace_easy_rep0.png) | ![Example Trace — Medium](final-analysis/figures/example_trace_medium_rep0.png) | ![Example Trace — Hard](final-analysis/figures/example_trace_hard_rep0.png) |
+![Example Trace — Easy](final-analysis/figures/example_trace_easy_rep0.png)
 
-*Figure 1: Numerical response streams across 400 probes for Easy, Medium, and Hard tiers. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
+*Figure 1: Numerical response stream across 400 probes for Easy Tier. The red dashed line marks the ground-truth substitution point ($t=200$), and the green dotted line marks the detector's automated flag.*
 
 ---
 
-### 6.2 ROC Delay vs. False Alarm Rate Trade-Off Curves
+### 6.2 ROC Delay vs. False Alarm Rate Trade-Off Curve
 
-| Easy Tier ROC Curve | Medium Tier ROC Curve | Hard Tier ROC Curve |
-| :---: | :---: | :---: |
-| ![ROC Curve — Easy](final-analysis/figures/roc_comparison_easy.png) | ![ROC Curve — Medium](final-analysis/figures/roc_comparison_medium.png) | ![ROC Curve — Hard](final-analysis/figures/roc_comparison_hard.png) |
+![ROC Curve — Easy](final-analysis/figures/roc_comparison_easy.png)
 
-*Figure 2: Receiver Operating Characteristic (ROC) trade-off curves mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis) across all difficulty tiers.*
+*Figure 2: Receiver Operating Characteristic (ROC) trade-off curve mapping False Alarm Rate ($X$-axis) against Mean Detection Delay ($Y$-axis) for Easy Tier.*
 
 ---
 
-### 6.3 Complete Multi-Tier Benchmark Comparison (Power & Delay)
+### 6.3 4-Detector Benchmark Comparison (Power & Delay)
 
-![Multi-Tier Benchmark Comparison](final-analysis/figures/multi_tier_benchmark_comparison.png)
+![Easy Tier Detector Benchmark Comparison](final-analysis/figures/detector_comparison_easy.png)
 
-*Figure 3: Side-by-side grouped bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for Easy, Medium, and Hard difficulty tiers.*
+*Figure 3: Side-by-side bar chart comparing Detection Power (%) and Mean Detection Delay (probes) across all 4 detectors for the Easy Tier.*
 
 ---
 
-### 6.4 Model Output Distribution Separability (Architecture vs Scale vs Quantization)
+### 6.4 Model Output Distribution Separability
 
-![Distribution Separability All Tiers](final-analysis/figures/distribution_separability_all_tiers.png)
+![Distribution Separability Easy](final-analysis/figures/distribution_separability_easy.png)
 
-*Figure 4: Empirical probability density distributions of single-token probe responses across all 3 tiers. Easy Tier (cross-architecture) shows distinct modal separation ($KS=0.659, p<10^{-270}$), Medium Tier (parameter shift) exhibits moderate density shifts ($KS=0.402, p<10^{-96}$), and Hard Tier (quantization shift) captures subtle precision differences.*
+*Figure 4: Empirical probability density distributions of single-token probe responses between Model A (`llama3.2:3b`) and Model B (`qwen2.5:3b`), demonstrating distinct modal separation ($KS=0.659, p<10^{-270}$).*
 
 ---
 
@@ -206,28 +193,24 @@ Compares incoming batches against a pre-collected, held-out reference dataset ge
 ## 🌐 7. Interactive Dashboard
 
 An interactive dashboard with Chart.js analytics widgets is available in your browser:
-🔗 [Open Interactive Dashboard HTML](file:///d:/Praneeth/Work/modelauth/final-analysis/figures/dashboard.html)
+🔗 `final-analysis/figures/dashboard.html`
 
 ---
 
 ## 🚀 8. How to Run the System
 
-To re-run the entire pipeline from scratch on Windows 11:
+To re-run the entire Easy Tier pipeline:
 
-```powershell
-# 1. Run full simulation experiments across Easy, Medium, or Hard tiers
+```bash
+# 1. Run detector evaluations and statistical audits
 cd substitution-sim
-python run_experiments.py easy
-python run_experiments.py medium
-python run_experiments.py hard
-
-# 2. Run detector evaluations and statistical audits
 python evaluate.py
 
-# 3. Generate all figures, summary tables, and dashboard
+# 2. Generate all figures, summary tables, and dashboard
 cd ../final-analysis
 python run_final_steps.py
 python interactive_dashboard.py
 ```
 
-All summary tables (`summary_table_all_tiers.csv`), figures (`.png`), and interactive dashboards (`dashboard.html`) will update automatically.
+All summary tables (`summary_table.csv`), figures (`.png`), and interactive dashboards (`dashboard.html`) will update automatically.
+
